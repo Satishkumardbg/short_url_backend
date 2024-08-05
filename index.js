@@ -13,7 +13,7 @@ const port = process.env.PORT
 dotenv.config();
 
 app.use(cors({
-    origin: ['http://localhost:3000', '/'],
+    origin: ['http://localhost:3000', 'https://s4url.netlify.app','https://s4url.netlify.app/', '/'],
     credentials: true,
   }));
 

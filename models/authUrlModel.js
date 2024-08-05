@@ -12,7 +12,7 @@ const AuthUrl = {
   },
 
   getAllAuthUrlByUserId: (userId) => {
-    const sql = 'SELECT * FROM urls WHERE userId = ?';
+    const sql = 'SELECT * FROM urls WHERE userId = ? ORDER BY id DESC';
     return new Promise((resolve, reject) => {
       db.query(sql, [userId], (err, result) => {
         if (err) return reject(err);
