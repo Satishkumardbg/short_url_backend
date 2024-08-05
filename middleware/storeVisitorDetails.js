@@ -6,18 +6,32 @@ const storeVisitorDetails = async (req, res, next) => {
     try {
         const parser = new UAParser();
         const userAgent = req.headers['user-agent'];
-
+        // console.log("userAgent", userAgent);
         const parsedUserAgent = parser.setUA(userAgent).getResult();
+        // console.log("parsedUserAgent", parsedUserAgent);
 
-        // Fetch location based on IP
-        const response = await fetch('https://ipapi.co/json');
+        // Extract client's IP address
+        let clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+
+        // Mock client IP address for local development
+        if (clientIp === '127.0.0.1' || clientIp === '::1') {
+            clientIp = '8.8.8.8'; // Mock IP address for testing
+        }
+        // console.log("clientIp", clientIp);
+
+        // Fetch location based on client's IP
+        const response = await fetch(`https://ipapi.co/${clientIp}/json`);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch IP information: ${response.statusText}`);
+        }
         const ipInfo = await response.json();
+        // console.log("ipInfo", ipInfo);
         const { city, country, latitude, longitude } = ipInfo;
 
         // Get the urlKey from the request parameters
         const { urlKey } = req.params;
 
-        // Get the device type from the parsed user agent, default to 'Unknown' if undefined
+        // Get the device type from the parsed user agent, default to 'Laptop' if undefined
         const deviceType = parsedUserAgent.device.type || 'Laptop';
 
         // Get the current date and time
@@ -25,13 +39,13 @@ const storeVisitorDetails = async (req, res, next) => {
 
         // Store the visitor details in the analytics table
         const query = `
-      INSERT INTO analytics (urlKey, user_agent, ip_address, city, country, latitude, longitude, device, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
+          INSERT INTO analytics (urlKey, user_agent, ip_address, city, country, latitude, longitude, device, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
         const values = [
             urlKey,
             JSON.stringify(parsedUserAgent),
-            req.socket.remoteAddress,
+            clientIp,
             city,
             country,
             latitude,
@@ -43,7 +57,7 @@ const storeVisitorDetails = async (req, res, next) => {
         await new Promise((resolve, reject) => {
             db.query(query, values, (err, result) => {
                 if (err) {
-                    //   console.error('Error storing visitor details:', err);
+                    console.error('Error storing visitor details:', err);
                     return reject(err);
                 }
                 resolve(result);
@@ -52,7 +66,7 @@ const storeVisitorDetails = async (req, res, next) => {
 
         next();
     } catch (err) {
-        // console.error('Error storing visitor details:', err);
+        console.error('Error storing visitor details:', err);
         next(err);
     }
 };
