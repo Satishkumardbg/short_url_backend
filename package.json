@@ -1,0 +1,28 @@
+{
+  "name": "trello_backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon index",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "ipapi.co": "^0.3.0",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.10.3",
+    "node-fetch": "^3.3.2",
+    "nodemon": "^3.1.4",
+    "short-unique-id": "^5.2.0",
+    "ua-parser-js": "^1.0.38",
+    "uuid": "^10.0.0"
+  }
+}
