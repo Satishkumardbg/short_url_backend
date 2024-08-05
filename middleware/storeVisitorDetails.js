@@ -6,9 +6,9 @@ const storeVisitorDetails = async (req, res, next) => {
     try {
         const parser = new UAParser();
         const userAgent = req.headers['user-agent'];
-        console.log("userAgent", userAgent);
+        // console.log("userAgent", userAgent);
         const parsedUserAgent = parser.setUA(userAgent).getResult();
-        console.log("parsedUserAgent", parsedUserAgent);
+        // console.log("parsedUserAgent", parsedUserAgent);
 
         // Extract client's IP address, considering the possibility of multiple IPs in x-forwarded-for
         let clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
@@ -20,7 +20,7 @@ const storeVisitorDetails = async (req, res, next) => {
         if (clientIp === '127.0.0.1' || clientIp === '::1') {
             clientIp = '8.8.8.8'; // Mock IP address for testing
         }
-        console.log("clientIp", clientIp);
+        // console.log("clientIp", clientIp);
 
         // Fetch location based on client's IP
         const response = await fetch(`https://ipapi.co/${clientIp}/json`);
@@ -28,7 +28,7 @@ const storeVisitorDetails = async (req, res, next) => {
             throw new Error(`Failed to fetch IP information: ${response.statusText}`);
         }
         const ipInfo = await response.json();
-        console.log("ipInfo", ipInfo);
+        // console.log("ipInfo", ipInfo);
         const { city, country, latitude, longitude } = ipInfo;
 
         // Get the urlKey from the request parameters
@@ -60,7 +60,7 @@ const storeVisitorDetails = async (req, res, next) => {
         await new Promise((resolve, reject) => {
             db.query(query, values, (err, result) => {
                 if (err) {
-                    console.error('Error storing visitor details:', err);
+                    // console.error('Error storing visitor details:', err);
                     return reject(err);
                 }
                 resolve(result);
@@ -69,7 +69,7 @@ const storeVisitorDetails = async (req, res, next) => {
 
         next();
     } catch (err) {
-        console.error('Error storing visitor details:', err);
+        // console.error('Error storing visitor details:', err);
         next(err);
     }
 };
