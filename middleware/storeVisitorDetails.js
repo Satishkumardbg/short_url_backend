@@ -6,18 +6,21 @@ const storeVisitorDetails = async (req, res, next) => {
     try {
         const parser = new UAParser();
         const userAgent = req.headers['user-agent'];
-        // console.log("userAgent", userAgent);
+        console.log("userAgent", userAgent);
         const parsedUserAgent = parser.setUA(userAgent).getResult();
-        // console.log("parsedUserAgent", parsedUserAgent);
+        console.log("parsedUserAgent", parsedUserAgent);
 
-        // Extract client's IP address
+        // Extract client's IP address, considering the possibility of multiple IPs in x-forwarded-for
         let clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+        if (clientIp.includes(',')) {
+            clientIp = clientIp.split(',')[0].trim();
+        }
 
-        // Mock client IP address for local development
+        // Mock client IP address for local development if necessary
         if (clientIp === '127.0.0.1' || clientIp === '::1') {
             clientIp = '8.8.8.8'; // Mock IP address for testing
         }
-        // console.log("clientIp", clientIp);
+        console.log("clientIp", clientIp);
 
         // Fetch location based on client's IP
         const response = await fetch(`https://ipapi.co/${clientIp}/json`);
@@ -25,7 +28,7 @@ const storeVisitorDetails = async (req, res, next) => {
             throw new Error(`Failed to fetch IP information: ${response.statusText}`);
         }
         const ipInfo = await response.json();
-        // console.log("ipInfo", ipInfo);
+        console.log("ipInfo", ipInfo);
         const { city, country, latitude, longitude } = ipInfo;
 
         // Get the urlKey from the request parameters
